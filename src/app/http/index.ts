@@ -1,5 +1,5 @@
 import Axios, { AxiosInstance } from "axios";
 
-export const HttpClient: AxiosInstance = Axios.create({
+export const httpClient: AxiosInstance = Axios.create({
   baseURL: "http://localhost:8080/",
 });
