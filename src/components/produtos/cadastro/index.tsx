@@ -5,6 +5,14 @@ import { Produto } from "app/models/produtos";
 import { converterEmBigDecimal } from "app/util/money";
 import { Message } from "../../index";
 import { Alert } from "components/common/message";
+import * as yup from "yup";
+
+const validationSchema = yup.object().shape({
+  sku: yup.string().required(),
+  nome: yup.string().required(),
+  descricao: yup.string().required(),
+  preco: yup.number().required(),
+});
 
 export const CadastroProdutos: React.FC = () => {
   const service = useProdutoService();
@@ -24,22 +32,33 @@ export const CadastroProdutos: React.FC = () => {
       nome,
       descricao,
     };
-    if (id) {
-      service
-        .atualizar(produto)
-        .then((res) =>
-          setMessages([
-            { tipo: "success", texto: "Produto atualizado com sucesso" },
-          ])
-        );
-    } else {
-      service.salvar(produto).then((resp) => {
-        setId(resp.id), setCadastro(resp.cadastro);
-        setMessages([
-          { tipo: "success", texto: "Produto cadastrado com sucesso" },
-        ]);
+
+    validationSchema
+      .validate(produto)
+      .then((obj) => {
+        if (id) {
+          service
+            .atualizar(produto)
+            .then((res) =>
+              setMessages([
+                { tipo: "success", texto: "Produto atualizado com sucesso" },
+              ])
+            );
+        } else {
+          service.salvar(produto).then((resp) => {
+            setId(resp.id), setCadastro(resp.cadastro);
+            setMessages([
+              { tipo: "success", texto: "Produto cadastrado com sucesso" },
+            ]);
+          });
+        }
+      })
+      .catch((err) => {
+        const field = err.path;
+        const message = err.message;
+
+        setMessages([{ tipo: "danger", field, texto: message }]);
       });
-    }
   };
 
   return (

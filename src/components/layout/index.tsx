@@ -24,7 +24,9 @@ export const Layout: React.FC<LayoutProps> = (props) => {
               <div className="card-content">
                 <div className="content">
                   {props.mensagens &&
-                    props.mensagens.map((msg) => <Message {...msg} />)}
+                    props.mensagens.map((msg) => (
+                      <Message key={msg.texto} {...msg} />
+                    ))}
                   {props.children}
                 </div>
               </div>
