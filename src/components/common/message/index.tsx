@@ -4,6 +4,12 @@ interface MessageProps {
   field?: string;
 }
 
+export interface Alert {
+  tipo: string;
+  texto: string;
+  field?: string;
+}
+
 export const Message: React.FC<MessageProps> = (props) => {
   return (
     <article className={`message is-${props.tipo}`}>

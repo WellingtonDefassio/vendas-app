@@ -4,6 +4,7 @@ import { useProdutoService } from "app/services";
 import { Produto } from "app/models/produtos";
 import { converterEmBigDecimal } from "app/util/money";
 import { Message } from "../../index";
+import { Alert } from "components/common/message";
 
 export const CadastroProdutos: React.FC = () => {
   const service = useProdutoService();
@@ -13,6 +14,7 @@ export const CadastroProdutos: React.FC = () => {
   const [descricao, setDescricao] = useState<string>("");
   const [id, setId] = useState<string>();
   const [cadastro, setCadastro] = useState<string>();
+  const [messages, setMessages] = useState<Array<Alert>>([]);
 
   const submit = () => {
     const produto: Produto = {
@@ -25,18 +27,23 @@ export const CadastroProdutos: React.FC = () => {
     if (id) {
       service
         .atualizar(produto)
-        .then((res) => console.log("atualizado com sucesso"));
+        .then((res) =>
+          setMessages([
+            { tipo: "success", texto: "Produto atualizado com sucesso" },
+          ])
+        );
     } else {
       service.salvar(produto).then((resp) => {
         setId(resp.id), setCadastro(resp.cadastro);
-        console.log(resp);
+        setMessages([
+          { tipo: "success", texto: "Produto cadastrado com sucesso" },
+        ]);
       });
     }
   };
 
   return (
-    <Layout titulo="Produtos">
-      <Message texto="Teste atualizado com sucess" tipo="success" />
+    <Layout titulo="Produtos" mensagens={messages}>
       {id && (
         <div className="columns">
           <Input
