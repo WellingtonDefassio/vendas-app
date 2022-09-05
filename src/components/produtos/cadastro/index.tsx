@@ -6,13 +6,29 @@ import { converterEmBigDecimal } from "app/util/money";
 import { Message } from "../../index";
 import { Alert } from "components/common/message";
 import * as yup from "yup";
+import Link from "next/link";
 
 const validationSchema = yup.object().shape({
-  sku: yup.string().required(),
-  nome: yup.string().required(),
-  descricao: yup.string().required(),
-  preco: yup.number().required(),
+  sku: yup.string().trim().required("Campo obrigatório"),
+  nome: yup.string().trim().required("Campo obrigatório"),
+  descricao: yup
+    .string()
+    .trim()
+    .required("Campo obrigatório")
+    .min(10, "deve possuir no minimo 10 caracters")
+    .max(20, "deve possuir no maximo 20 caracters"),
+  preco: yup
+    .number()
+    .required("Campo obrigatório")
+    .moreThan(0, "Valor deve ser maior que 0,00 (Zero)"),
 });
+
+interface FormErros {
+  sku?: string;
+  nome?: string;
+  preco?: string;
+  descricao?: string;
+}
 
 export const CadastroProdutos: React.FC = () => {
   const service = useProdutoService();
@@ -23,6 +39,7 @@ export const CadastroProdutos: React.FC = () => {
   const [id, setId] = useState<string>();
   const [cadastro, setCadastro] = useState<string>();
   const [messages, setMessages] = useState<Array<Alert>>([]);
+  const [errors, setErros] = useState<FormErros>({});
 
   const submit = () => {
     const produto: Produto = {
@@ -36,6 +53,7 @@ export const CadastroProdutos: React.FC = () => {
     validationSchema
       .validate(produto)
       .then((obj) => {
+        setErros({});
         if (id) {
           service
             .atualizar(produto)
@@ -57,7 +75,9 @@ export const CadastroProdutos: React.FC = () => {
         const field = err.path;
         const message = err.message;
 
-        setMessages([{ tipo: "danger", field, texto: message }]);
+        setErros({
+          [field]: message,
+        });
       });
   };
 
@@ -93,6 +113,7 @@ export const CadastroProdutos: React.FC = () => {
           onChange={setSku}
           placeholder="digite o sku do produto"
           typeDiv="input"
+          error={errors.sku}
         ></Input>
 
         <Input
@@ -104,6 +125,7 @@ export const CadastroProdutos: React.FC = () => {
           typeDiv="input"
           currency={true}
           maxLength={16}
+          error={errors.preco}
         />
       </div>
       <div className="columns">
@@ -114,6 +136,7 @@ export const CadastroProdutos: React.FC = () => {
           onChange={setNome}
           placeholder="digite o nome do produto"
           typeDiv="input"
+          error={errors.nome}
         />
       </div>
       <div className="columns">
@@ -129,6 +152,9 @@ export const CadastroProdutos: React.FC = () => {
                 value={descricao}
                 onChange={(event) => setDescricao(event.target.value)}
               />
+              {errors.descricao && (
+                <p className="help is-danger">{errors.descricao}</p>
+              )}
             </div>
           </div>
         </div>
@@ -140,7 +166,9 @@ export const CadastroProdutos: React.FC = () => {
           </button>
         </div>
         <div className="control">
-          <button className="button is-link is-light">Voltar</button>
+          <Link href="/consultas/produtos">
+            <button className="button is-link is-light">Voltar</button>
+          </Link>
         </div>
       </div>
     </Layout>
