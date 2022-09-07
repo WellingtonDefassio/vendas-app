@@ -1,10 +1,17 @@
 import { Produto } from "app/models/produtos";
+import { useState } from "react";
 
 interface TabelaProdutosProps {
   produtos: Array<Produto>;
+  onEdit: (produto: any) => void;
+  onDelete: (produto: any) => void;
 }
 
-export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({ produtos }) => {
+export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
+  produtos,
+  onDelete,
+  onEdit,
+}) => {
   return (
     <table className="table is-hoverable">
       <thead>
@@ -18,7 +25,12 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({ produtos }) => {
       </thead>
       <tbody>
         {produtos.map((produto) => (
-          <ProdutoRow key={produto.id} produto={produto} />
+          <ProdutoRow
+            onDelete={onDelete}
+            onEdit={onEdit}
+            key={produto.id}
+            produto={produto}
+          />
         ))}
       </tbody>
     </table>
@@ -27,9 +39,28 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({ produtos }) => {
 
 interface ProdutoRowProps {
   produto: Produto;
+  onEdit: (produto: any) => void;
+  onDelete: (produto: any) => void;
 }
 
-const ProdutoRow: React.FC<ProdutoRowProps> = ({ produto }) => {
+const ProdutoRow: React.FC<ProdutoRowProps> = ({
+  produto,
+  onDelete,
+  onEdit,
+}) => {
+  const [deletando, setDeletando] = useState<boolean>(false);
+
+  const onDeleteClick = (produto: Produto) => {
+    if (deletando) {
+      onDelete(produto);
+      setDeletando(false);
+    } else {
+      setDeletando(true);
+    }
+  };
+
+  const cancelaDelete = () => setDeletando(false);
+
   return (
     <tr>
       <td>{produto.id}</td>
@@ -37,8 +68,28 @@ const ProdutoRow: React.FC<ProdutoRowProps> = ({ produto }) => {
       <td>{produto.nome}</td>
       <td>{produto.preco}</td>
       <td>
-        <button className="button">Editar</button>
-        <button className="button">Excluir</button>
+        {!deletando && (
+          <button
+            onClick={(e) => onEdit(produto)}
+            className="button is-success is-light is-rounded is-small"
+          >
+            Editar
+          </button>
+        )}
+        <button
+          onClick={(e) => onDeleteClick(produto)}
+          className="button is-danger is-light is-rounded is-small"
+        >
+          {deletando ? "Confirmar" : "Deletar"}
+        </button>
+        {deletando && (
+          <button
+            onClick={cancelaDelete}
+            className="button is-light is-rounded is-small"
+          >
+            Cancelar
+          </button>
+        )}
       </td>
     </tr>
   );
