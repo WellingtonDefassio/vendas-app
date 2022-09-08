@@ -7,7 +7,6 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   columnSize?: string;
   typeDiv?: string;
   initialValue?: string | number;
-  onChange?: (value: any) => void;
   currency?: boolean;
   error?: string;
 }
@@ -18,7 +17,6 @@ export const Input: React.FC<InputProps> = ({
   columnSize,
   typeDiv,
   initialValue,
-  onChange,
   currency,
   error,
   ...props
@@ -27,9 +25,6 @@ export const Input: React.FC<InputProps> = ({
     let value = event.target.value;
     if (value && currency) {
       value = formatReal(value);
-    }
-    if (onChange) {
-      onChange(value);
     }
   };
 
@@ -40,14 +35,7 @@ export const Input: React.FC<InputProps> = ({
           {label}
         </label>
         <div className="control">
-          <input
-            className={typeDiv}
-            type="text"
-            id={id}
-            {...props}
-            value={initialValue}
-            onChange={onInputChange}
-          />
+          <input className={typeDiv} type="text" id={id} {...props} />
           {error && <p className="help is-danger">{error}</p>}
         </div>
       </div>
